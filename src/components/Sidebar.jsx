@@ -140,7 +140,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 z-50 flex h-screen items-center justify-center w-[480px] p-4">
+    <aside className="flex items-center justify-center p-4 min-h-[580px]">
       {/* ══ CARD ══ */}
       <div className="group relative flex h-full w-full flex-col overflow-hidden rounded-[22px] bg-[#0f0f0f] border border-white/10">
         {/* ── PHOTO — full bleed background, grayscale by default, color on card hover ── */}

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { FiBookOpen, FiBriefcase } from "react-icons/fi";
+import { useEffect, useRef, useState } from "react";
+import { FiBookOpen, FiBriefcase, FiArrowUpRight } from "react-icons/fi";
 
 const TIMELINE = [
   {
@@ -38,6 +38,65 @@ const TIMELINE = [
 export default function EducationSection() {
   const sectionRef = useRef(null);
   const lineRef = useRef(null);
+  const dotRef = useRef(null);
+  const itemRefs = useRef([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // useEffect(() => {
+  //   let ctx;
+
+  //   import("gsap").then(({ gsap }) => {
+  //     import("gsap/ScrollTrigger").then(({ ScrollTrigger }) => {
+  //       gsap.registerPlugin(ScrollTrigger);
+
+  //       ctx = gsap.context(() => {
+  //         gsap.from(".tl-item", {
+  //           y: 32,
+  //           opacity: 0,
+  //           stagger: 0.15,
+  //           duration: 0.7,
+  //           ease: "power3.out",
+  //           scrollTrigger: { trigger: sectionRef.current, start: "top 80%" },
+  //         });
+
+  //         // Line fills downward as you scroll through the section
+  //         gsap.fromTo(
+  //           lineRef.current,
+  //           { scaleY: 0 },
+  //           {
+  //             scaleY: 1,
+  //             ease: "none",
+  //             scrollTrigger: {
+  //               trigger: sectionRef.current,
+  //               start: "top 70%",
+  //               end: "bottom 55%",
+  //               scrub: 0.6,
+  //             },
+  //           }
+  //         );
+
+  //         // Glowing dot rides the leading edge of the line
+  //         gsap.fromTo(
+  //           dotRef.current,
+  //           { top: "0%" },
+  //           {
+  //             top: "100%",
+  //             ease: "none",
+  //             scrollTrigger: {
+  //               trigger: sectionRef.current,
+  //               start: "top 70%",
+  //               end: "bottom 55%",
+  //               scrub: 0.6,
+  //             },
+  //           }
+  //         );
+  //       }, sectionRef);
+  //     });
+
+  //   });
+
+  //   return () => ctx?.revert();
+  // }, []);
 
   useEffect(() => {
     let ctx;
@@ -47,12 +106,12 @@ export default function EducationSection() {
         gsap.registerPlugin(ScrollTrigger);
 
         ctx = gsap.context(() => {
-          // Items fade/slide in
+          // entry animation
           gsap.from(".tl-item", {
-            x: -20,
+            y: 32,
             opacity: 0,
-            stagger: 0.18,
-            duration: 0.65,
+            stagger: 0.15,
+            duration: 0.7,
             ease: "power3.out",
             scrollTrigger: {
               trigger: sectionRef.current,
@@ -60,7 +119,7 @@ export default function EducationSection() {
             },
           });
 
-          // Line draws downward as the section scrolls through view
+          // timeline line
           gsap.fromTo(
             lineRef.current,
             { scaleY: 0 },
@@ -69,12 +128,41 @@ export default function EducationSection() {
               ease: "none",
               scrollTrigger: {
                 trigger: sectionRef.current,
-                start: "top 75%",
-                end: "bottom 60%",
+                start: "top 70%",
+                end: "bottom 55%",
                 scrub: 0.6,
               },
             }
           );
+
+          // dot movement
+          gsap.fromTo(
+            dotRef.current,
+            { top: "0%" },
+            {
+              top: "100%",
+              ease: "none",
+              scrollTrigger: {
+                trigger: sectionRef.current,
+                start: "top 70%",
+                end: "bottom 55%",
+                scrub: 0.6,
+              },
+            }
+          );
+
+          // ✅ FIXED: correct trigger binding
+          itemRefs.current.forEach((el, index) => {
+            if (!el) return;
+
+            ScrollTrigger.create({
+              trigger: el,
+              start: "top 75%", // 👈 key fix
+              end: "bottom 75%",
+              onEnter: () => setActiveIndex(index),
+              onEnterBack: () => setActiveIndex(index),
+            });
+          });
         }, sectionRef);
       });
     });
@@ -88,76 +176,96 @@ export default function EducationSection() {
       ref={sectionRef}
       className="section border-t border-[var(--border)]"
     >
-      {/* Section Label */}
       <div className="sect-label">
         <FiBookOpen size={12} />
         Education &amp; Experience
       </div>
 
-      {/* Timeline */}
-      <div className="relative pl-9">
-        {/* Track (static, faint) */}
-        <div className="absolute left-[13px] top-2 bottom-2 w-px bg-[var(--border)]" />
-
-        {/* Fill (animates in on scroll) */}
+      <div className="relative mt-10 pl-[52px] sm:pl-[64px]">
+        {/* Track */}
+        <div className="absolute left-[15px] top-0 bottom-0 w-px bg-[var(--border)] sm:left-[19px]" />
+        {/* Fill */}
         <div
           ref={lineRef}
-          className="absolute left-[13px] top-2 bottom-2 w-px origin-top bg-[var(--accent)]"
+          className="absolute left-[15px] top-0 bottom-0 w-px origin-top bg-gradient-to-b from-[var(--accent)] to-[var(--accent)]/20 sm:left-[19px]"
           style={{ transform: "scaleY(0)" }}
         />
+        {/* Traveling glow marker */}
+        <div
+          ref={dotRef}
+          className="absolute left-[15px] z-10 h-[9px] w-[9px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--accent)] sm:left-[19px]"
+          style={{
+            boxShadow: "0 0 12px 3px var(--accent-glow, var(--accent))",
+          }}
+        />
 
-        {TIMELINE.map((item, i) => {
-          const Icon = item.type === "work" ? FiBriefcase : FiBookOpen;
-          const isLast = i === TIMELINE.length - 1;
+        <div className="flex flex-col gap-14">
+          {TIMELINE.map((item, i) => {
+            const Icon = item.type === "work" ? FiBriefcase : FiBookOpen;
 
-          return (
-            <div
-              key={i}
-              className={`tl-item relative ${!isLast ? "pb-10" : ""}`}
-            >
-              {/* Icon marker */}
+            return (
               <div
-                className={`absolute left-[-36px] top-0 flex h-[27px] w-[27px] items-center justify-center rounded-full border ${
-                  item.type === "work"
-                    ? "border-[var(--accent)]/40 bg-[var(--accent-dim)] text-[var(--accent)]"
-                    : "border-[var(--border-strong)] bg-[var(--bg-card-border)] text-[var(--text-muted)]"
-                }`}
+                key={i}
+                ref={(el) => (itemRefs.current[i] = el)}
+                className="tl-item relative"
               >
-                <Icon size={12} />
-              </div>
+                {/* Number/icon marker on the track */}
+                <div
+                  className={`absolute left-[-52px] top-0 flex h-[32px] w-[32px] items-center justify-center rounded-full text-[13px] font-semibold sm:left-[-64px] ${
+                    i <= activeIndex
+                      ? "bg-[var(--accent)] text-black"
+                      : "bg-[var(--bg-card)] text-[var(--text-muted)] border border-[var(--border-strong)]"
+                  }`}
+                >
+                  <Icon size={13} />
+                </div>
 
-              {/* Content */}
-              <div className="grid grid-cols-1 gap-1 sm:grid-cols-[120px_1fr] sm:gap-8">
-                {/* Period column */}
-                <p className="pt-[3px] text-[11px] font-medium tracking-[0.04em] text-[var(--text-muted)]">
-                  {item.period}
-                </p>
+                {/* Eyebrow row: period + current pill */}
+                <div className="mb-3 flex flex-wrap items-center gap-3">
+                  <span className="font-mono text-[12px] tracking-wide text-[var(--text-muted)]">
+                    {item.period}
+                  </span>
+                  {item.current && (
+                    <span className="flex items-center gap-[6px] text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--accent)]">
+                      <span className="relative flex h-[6px] w-[6px]">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--accent)] opacity-60" />
+                        <span className="relative inline-flex h-[6px] w-[6px] rounded-full bg-[var(--accent)]" />
+                      </span>
+                      Current
+                    </span>
+                  )}
+                </div>
 
-                {/* Card */}
-                <div className="rounded-xl border border-[var(--border)] bg-white/[0.015] p-4 transition-colors duration-200 hover:border-[var(--border-strong)] hover:bg-white/[0.03] sm:-mt-[3px]">
-                  <div className="mb-[3px] flex flex-wrap items-center gap-[10px]">
-                    <h4 className="text-[16px] font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
+                {/* Card — glass, no heavy border-box like before */}
+                <div
+                  className={`group relative overflow-hidden rounded-2xl p-6 transition-all duration-300 ${
+                    item.current
+                      ? "bg-gradient-to-br from-[var(--accent-dim)] to-transparent ring-1 ring-[var(--accent-border)]"
+                      : "bg-white/[0.02] ring-1 ring-[var(--border)] hover:ring-[var(--border-strong)] hover:bg-white/[0.035]"
+                  }`}
+                >
+                  <div className="mb-1 flex items-start justify-between gap-4">
+                    <h4 className="text-[19px] font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
                       {item.role}
                     </h4>
-                    {item.current && (
-                      <span className="rounded-full bg-[var(--accent-dim)] px-2 py-[2px] text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--accent)]">
-                        Current
-                      </span>
-                    )}
+                    <FiArrowUpRight
+                      size={16}
+                      className="mt-1 shrink-0 text-[var(--text-muted)] opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:opacity-100"
+                    />
                   </div>
 
-                  <p className="mb-2 text-[12px] font-medium text-[var(--accent)]">
+                  <p className="mb-3 text-[13px] font-medium text-[var(--accent)]">
                     {item.org}
                   </p>
 
-                  <p className="text-[13px] leading-[1.65] text-[var(--text-secondary)]">
+                  <p className="max-w-[560px] text-[14px] leading-[1.7] text-[var(--text-secondary)]">
                     {item.desc}
                   </p>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </section>
   );

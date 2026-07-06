@@ -14,14 +14,14 @@ export default function RootLayout({ children }) {
     <html lang="en" data-theme="dark" data-accent="green">
       <body>
         <ThemeProvider>
-          <Sidebar />
+          {/* <Sidebar /> */}
           <NavRail />
           <main
-            style={{
-              marginLeft: "500px",
-              marginRight: "72px",
-              minHeight: "100vh",
-            }}
+          // style={{
+          //   marginLeft: "500px",
+          //   marginRight: "72px",
+          //   minHeight: "100vh",
+          // }}
           >
             {children}
           </main>

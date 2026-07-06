@@ -123,16 +123,17 @@ export default function WorkSection() {
         Work Highlights
       </div>
 
-      <div>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {PROJECTS.map((p, i) => (
           <div
             key={p.num}
             onMouseEnter={() => showPreview(p)}
             onMouseLeave={hidePreview}
-            className={`work-row group flex cursor-pointer gap-5 py-[26px] transition-[padding-left] duration-300 ease-in-out hover:pl-[10px] ${
-              i === 0
-                ? "border-y border-[var(--border)]"
-                : "border-b border-[var(--border)]"
+            className={`work-row group flex cursor-pointer gap-5 py-[26px] transition-[padding-left] duration-300 ease-in-out hover:pl-[10px]
+            ${
+              (i + 1) % 3 !== 0
+                ? "xl:border-r xl:border-[var(--border)] xl:pr-6"
+                : ""
             }`}
           >
             {/* Number */}

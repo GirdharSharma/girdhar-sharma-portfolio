@@ -92,44 +92,6 @@ const SKILLS = [
 export default function TechSection() {
   const ref = useRef(null);
 
-  useEffect(() => {
-    let ctx;
-
-    import("gsap").then(({ gsap }) => {
-      import("gsap/ScrollTrigger").then(({ ScrollTrigger }) => {
-        gsap.registerPlugin(ScrollTrigger);
-
-        ctx = gsap.context(() => {
-          gsap.from(".skill-bar-inner", {
-            scaleX: 0,
-            transformOrigin: "left center",
-            duration: 1.1,
-            ease: "power3.out",
-            stagger: 0.07,
-            scrollTrigger: {
-              trigger: ref.current,
-              start: "top 78%",
-            },
-          });
-
-          gsap.from(".skill-row", {
-            y: 16,
-            opacity: 0,
-            stagger: 0.07,
-            duration: 0.55,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: ref.current,
-              start: "top 80%",
-            },
-          });
-        }, ref);
-      });
-    });
-
-    return () => ctx?.revert();
-  }, []);
-
   return (
     <section
       id="tech"
@@ -173,11 +135,47 @@ export default function TechSection() {
 }
 
 function SkillRow({ skill }) {
+  const rowRef = useRef(null);
+  const barRef = useRef(null);
+
   const { name, desc, pct, cat, Icon, color } = skill;
   const isFrontend = cat === "Frontend";
 
+  useEffect(() => {
+    let ctx;
+
+    import("gsap").then(({ gsap }) => {
+      import("gsap/ScrollTrigger").then(({ ScrollTrigger }) => {
+        gsap.registerPlugin(ScrollTrigger);
+
+        ctx = gsap.context(() => {
+          gsap.fromTo(
+            barRef.current,
+            { width: "0%" },
+            {
+              width: `${pct}%`,
+              duration: 1,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: rowRef.current,
+                start: "top 85%",
+                end: "bottom 20%",
+                scrub: 0.6,
+              }
+            }
+          );
+        }, rowRef);
+      });
+    });
+
+    return () => ctx?.revert();
+  }, []);
+
   return (
-    <div className="skill-row mb-4 flex flex-col gap-3 border-b border-[var(--border)] p-4 transition-colors sm:flex-row sm:items-center sm:gap-5 pb-10">
+    <div
+      ref={rowRef}
+      className="skill-row mb-4 flex flex-col gap-3 border-b border-[var(--border)] p-4 transition-colors sm:flex-row sm:items-center sm:gap-5 pb-10"
+    >
       {/* Icon + text */}
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <div
@@ -200,6 +198,7 @@ function SkillRow({ skill }) {
       {/* Pill bar */}
       <div className="relative h-8 w-full shrink-0 overflow-hidden rounded-full bg-white/[0.05] sm:w-[42%]">
         <div
+          ref={barRef}
           className={`skill-bar-inner flex h-full items-center justify-end rounded-full pr-[3px] ${
             isFrontend ? "bg-[var(--accent)]" : "bg-white/20"
           }`}

@@ -4,7 +4,7 @@ export default function Footer() {
     <footer className="section w-full text-white/80 px-[24px] py-[80px] pb-10">
       {/* Quote Section */}
       <div className="max-w-5xl mx-auto mb-[60px]">
-        <p className="text-[36px] md:text-[36px] leading-[1.2] text-white/70 font-light font-['EB_Garamond']">
+        <p className="text-[36px] md:text-[36px] leading-[1.2] text-[var(--text-secondary)] font-light font-['EB_Garamond']">
           <span className="text-white/50">“</span>
           Design is not just what it looks like and feels like. Design is how it
           works.
